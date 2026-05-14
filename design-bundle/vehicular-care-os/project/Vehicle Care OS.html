@@ -1,0 +1,1502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Vehicle Care OS — The Operating System for Modern Vehicle Care</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: oklch(0.165 0.008 60);
+    --bg-2: oklch(0.205 0.010 60);
+    --bg-3: oklch(0.245 0.012 60);
+    --line: oklch(0.32 0.010 60);
+    --line-soft: oklch(0.26 0.008 60);
+    --fg: oklch(0.965 0.008 90);
+    --fg-2: oklch(0.78 0.008 90);
+    --fg-3: oklch(0.58 0.010 80);
+    --accent: oklch(0.88 0.20 125);   /* electric lime */
+    --accent-ink: oklch(0.20 0.04 125);
+    --radius-s: 8px;
+    --radius-m: 14px;
+    --radius-l: 22px;
+    --maxw: 1320px;
+    --pad: 28px;
+  }
+  [data-theme="light"] {
+    --bg: oklch(0.97 0.005 90);
+    --bg-2: oklch(0.93 0.006 90);
+    --bg-3: oklch(0.88 0.007 90);
+    --line: oklch(0.82 0.008 80);
+    --line-soft: oklch(0.88 0.006 80);
+    --fg: oklch(0.18 0.008 60);
+    --fg-2: oklch(0.35 0.008 60);
+    --fg-3: oklch(0.55 0.010 70);
+    --accent-ink: oklch(0.18 0.04 125);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-feature-settings: "ss01", "ss02", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); }
+
+  /* ── NAV ─────────────────────────────────────────────────────────── */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    background: color-mix(in oklab, var(--bg) 70%, transparent);
+    border-bottom: 1px solid color-mix(in oklab, var(--line) 50%, transparent);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; letter-spacing: -0.01em; font-size: 15px;
+  }
+  .brand-mark {
+    width: 26px; height: 26px; border-radius: 7px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    display: grid; place-items: center;
+    font-family: "Geist Mono", monospace; font-weight: 600; font-size: 12px;
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 50%, transparent), 0 0 24px -6px var(--accent);
+  }
+  .brand-mark::after { content: "◆"; }
+  .nav-links { display: flex; align-items: center; gap: 28px; font-size: 13.5px; color: var(--fg-2); }
+  .nav-links a:hover { color: var(--fg); }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 14px; border-radius: 999px;
+    background: var(--fg); color: var(--bg);
+    font-size: 13px; font-weight: 500; letter-spacing: -0.005em;
+    transition: transform .15s ease;
+  }
+  .nav-cta:hover { transform: translateY(-1px); }
+  .nav-cta .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  /* ── HERO ────────────────────────────────────────────────────────── */
+  .hero { padding: 92px 0 60px; position: relative; }
+  .hero-grid {
+    display: grid; grid-template-columns: 1fr; gap: 48px;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: "Geist Mono", monospace; font-size: 11.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-3);
+  }
+  .eyebrow .pulse {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent);
+    animation: pulse 2s infinite ease-in-out;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent); }
+    50% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--accent) 8%, transparent); }
+  }
+  .h1 {
+    font-family: "Instrument Serif", serif;
+    font-weight: 400;
+    font-size: clamp(54px, 9.2vw, 156px);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    margin: 22px 0 0;
+    color: var(--fg);
+    text-wrap: balance;
+  }
+  .h1 .it { font-style: italic; color: var(--accent); padding-right: 0.04em; }
+  .h1 .slash {
+    display: inline-block; color: var(--fg-3); font-style: italic;
+    transform: translateY(-0.06em);
+  }
+  .hero-sub-row {
+    margin-top: 36px;
+    display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: end;
+  }
+  .hero-sub {
+    font-size: 19px; line-height: 1.45; color: var(--fg-2); max-width: 52ch;
+    text-wrap: pretty;
+  }
+  .hero-actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 20px; border-radius: 999px;
+    font-size: 14px; font-weight: 500; letter-spacing: -0.005em;
+    border: 1px solid var(--line);
+    background: transparent; color: var(--fg);
+    transition: all .15s ease;
+    cursor: default;
+  }
+  .btn:hover { background: var(--bg-2); border-color: color-mix(in oklab, var(--fg) 30%, transparent); }
+  .btn-primary {
+    background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent),
+                0 12px 36px -10px var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+  .btn .arr { transition: transform .2s ease; }
+  .btn:hover .arr { transform: translate(3px, -3px); }
+
+  /* meta strip below hero */
+  .hero-meta {
+    margin-top: 88px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-meta > div {
+    padding: 22px 24px;
+    border-right: 1px solid var(--line);
+  }
+  .hero-meta > div:last-child { border-right: none; }
+  .hero-meta .lbl {
+    font-family: "Geist Mono", monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3);
+  }
+  .hero-meta .val {
+    margin-top: 10px;
+    font-family: "Instrument Serif", serif;
+    font-size: 44px; line-height: 1; letter-spacing: -0.02em;
+  }
+  .hero-meta .val .u { color: var(--fg-3); font-size: 22px; padding-left: 4px; }
+
+  /* ── MARQUEE ─────────────────────────────────────────────────────── */
+  .marq {
+    margin: 64px 0 0;
+    padding: 32px 0;
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    overflow: hidden;
+    position: relative;
+  }
+  .marq::before, .marq::after {
+    content:""; position:absolute; top:0; bottom:0; width: 140px; z-index: 2;
+    pointer-events: none;
+  }
+  .marq::before { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
+  .marq::after  { right: 0; background: linear-gradient(270deg, var(--bg), transparent); }
+  .marq-track {
+    display: flex; gap: 64px; width: max-content;
+    animation: scrollx 38s linear infinite;
+    align-items: center;
+  }
+  .marq-item {
+    display: inline-flex; align-items: center; gap: 14px;
+    font-family: "Instrument Serif", serif;
+    font-size: 28px; letter-spacing: -0.01em;
+    color: var(--fg-2);
+    white-space: nowrap;
+  }
+  .marq-item .star { color: var(--accent); font-family: "Geist Mono", monospace; font-size: 16px; }
+  @keyframes scrollx {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── SECTION HEADING ─────────────────────────────────────────────── */
+  section { padding: 120px 0; }
+  .sec-head {
+    display: grid; grid-template-columns: 1fr 1.6fr; gap: 48px;
+    align-items: end;
+    margin-bottom: 64px;
+  }
+  .sec-tag {
+    font-family: "Geist Mono", monospace;
+    font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--fg-3);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .sec-tag .idx {
+    color: var(--accent); font-weight: 500;
+  }
+  .sec-tag .line { flex: 1; height: 1px; background: var(--line); max-width: 80px; }
+  .sec-title {
+    font-family: "Instrument Serif", serif;
+    font-weight: 400;
+    font-size: clamp(40px, 5.4vw, 86px);
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    margin: 16px 0 0;
+    text-wrap: balance;
+  }
+  .sec-title .it { font-style: italic; color: var(--accent); }
+  .sec-desc {
+    font-size: 17px; line-height: 1.55; color: var(--fg-2); max-width: 58ch;
+    text-wrap: pretty;
+  }
+
+  /* ── FEATURE STACK (numbered rows) ───────────────────────────────── */
+  .feat-stack { display: flex; flex-direction: column; gap: 0; }
+  .feat-row {
+    display: grid; grid-template-columns: 64px 1.1fr 2fr 64px;
+    gap: 32px; align-items: start;
+    padding: 36px 0;
+    border-top: 1px solid var(--line);
+    transition: padding .25s ease;
+  }
+  .feat-row:last-child { border-bottom: 1px solid var(--line); }
+  .feat-row:hover { padding-left: 8px; }
+  .feat-num {
+    font-family: "Geist Mono", monospace; font-size: 12.5px;
+    color: var(--fg-3); letter-spacing: 0.04em; padding-top: 6px;
+  }
+  .feat-name {
+    font-family: "Instrument Serif", serif;
+    font-size: 36px; line-height: 1; letter-spacing: -0.02em;
+  }
+  .feat-name .it { font-style: italic; color: var(--accent); }
+  .feat-desc { font-size: 15.5px; line-height: 1.55; color: var(--fg-2); max-width: 56ch; padding-top: 6px; }
+  .feat-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--bg-2); border: 1px solid var(--line);
+    display: grid; place-items: center;
+    color: var(--accent);
+    transition: all .25s ease;
+  }
+  .feat-row:hover .feat-icon {
+    background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+    transform: rotate(-8deg);
+  }
+
+  /* ── PRODUCT MOCK SHOWCASE ──────────────────────────────────────── */
+  .showcase { background: var(--bg-2); position: relative; overflow: hidden; }
+  .showcase::before {
+    content:""; position:absolute; inset:auto -10% -40% -10%; height: 60%;
+    background: radial-gradient(50% 60% at 50% 100%, color-mix(in oklab, var(--accent) 18%, transparent), transparent 70%);
+    pointer-events:none;
+  }
+  .showcase-grid {
+    display: grid; grid-template-columns: 320px 1fr 320px;
+    gap: 24px; align-items: end;
+    margin-top: 24px;
+  }
+
+  /* Phone — customer app */
+  .phone {
+    width: 320px; height: 640px;
+    border-radius: 44px;
+    background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+    border: 1px solid var(--line);
+    padding: 12px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,.6), 0 0 0 1px color-mix(in oklab, var(--fg) 6%, transparent) inset;
+    position: relative;
+    justify-self: start;
+  }
+  .phone-screen {
+    width: 100%; height: 100%; border-radius: 34px;
+    background: var(--bg);
+    border: 1px solid var(--line-soft);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .phone-notch {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 96px; height: 26px; border-radius: 14px; background: #000; z-index: 2;
+  }
+  .phone-status {
+    padding: 16px 22px 8px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: "Geist Mono", monospace; font-size: 11px; color: var(--fg-2);
+  }
+  .phone-body { padding: 24px 18px 18px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .phone-h {
+    font-family: "Instrument Serif", serif; font-size: 26px; line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .phone-h .it { font-style: italic; color: var(--accent); }
+  .phone-sub { font-size: 11.5px; color: var(--fg-3); }
+  .phone-card {
+    margin-top: 6px;
+    border-radius: 16px; border: 1px solid var(--line);
+    background: var(--bg-2);
+    overflow: hidden;
+  }
+  .phone-status-bar {
+    padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .phone-stat-l { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--fg-2); }
+  .phone-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent); }
+  .phone-eta { font-family: "Geist Mono", monospace; font-size: 10.5px; color: var(--fg-3); }
+  .phone-steps { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .phone-step { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .phone-step .pip { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line); }
+  .phone-step.done .pip { background: var(--accent); border-color: var(--accent); }
+  .phone-step.done { color: var(--fg); }
+  .phone-step.now .pip {
+    background: var(--accent); border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent);
+    animation: pulse 2s infinite ease-in-out;
+  }
+  .phone-step.now { color: var(--fg); }
+  .phone-step.pending { color: var(--fg-3); }
+  .phone-veh {
+    margin-top: auto; display: flex; gap: 10px; align-items: center;
+    padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2);
+  }
+  .phone-veh .img {
+    width: 52px; height: 36px; border-radius: 6px;
+    background: repeating-linear-gradient(135deg, var(--bg-3) 0 6px, var(--bg-2) 6px 12px);
+    border: 1px solid var(--line-soft);
+  }
+  .phone-veh .m { font-size: 12.5px; font-weight: 500; }
+  .phone-veh .p { font-size: 10.5px; color: var(--fg-3); font-family: "Geist Mono", monospace; }
+  .phone-cta {
+    margin-top: 8px;
+    background: var(--accent); color: var(--accent-ink);
+    padding: 14px; border-radius: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 500; font-size: 13px;
+  }
+
+  /* Operator dashboard panel (center, large) */
+  .dash {
+    border-radius: var(--radius-l);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    box-shadow: 0 40px 90px -20px rgba(0,0,0,.55);
+  }
+  .dash-chrome {
+    height: 36px; display: flex; align-items: center; gap: 10px;
+    padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--bg-2);
+  }
+  .dash-chrome .lights { display: flex; gap: 6px; }
+  .dash-chrome .lights span {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: color-mix(in oklab, var(--fg) 18%, transparent);
+  }
+  .dash-chrome .url {
+    margin-left: 12px; font-family: "Geist Mono", monospace; font-size: 11px; color: var(--fg-3);
+  }
+  .dash-chrome .url b { color: var(--fg); font-weight: 500; }
+  .dash-body { display: grid; grid-template-columns: 200px 1fr; min-height: 580px; }
+
+  .dash-side { border-right: 1px solid var(--line); padding: 18px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .dash-side .grp {
+    font-family: "Geist Mono", monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3);
+    padding: 10px 8px 4px;
+  }
+  .dash-side a {
+    padding: 8px 10px; border-radius: 8px; font-size: 13px; color: var(--fg-2);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .dash-side a.on { background: var(--bg-2); color: var(--fg); }
+  .dash-side a .ct {
+    font-family: "Geist Mono", monospace; font-size: 10.5px; color: var(--fg-3);
+    background: var(--bg-2); padding: 1px 6px; border-radius: 999px;
+  }
+  .dash-side a.on .ct { background: var(--accent); color: var(--accent-ink); }
+
+  .dash-main { padding: 22px 24px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  .dash-top { display: flex; align-items: center; justify-content: space-between; }
+  .dash-h { font-family: "Instrument Serif", serif; font-size: 28px; letter-spacing: -0.02em; }
+  .dash-h .it { font-style: italic; color: var(--accent); }
+  .dash-search {
+    border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px;
+    font-size: 12px; color: var(--fg-3); display: inline-flex; gap: 8px;
+    background: var(--bg-2);
+  }
+  .dash-search kbd {
+    font-family: "Geist Mono", monospace; font-size: 10px;
+    background: var(--bg); border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px;
+  }
+  .dash-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .kpi { padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2); }
+  .kpi .lbl { font-family: "Geist Mono", monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); }
+  .kpi .v { font-family: "Instrument Serif", serif; font-size: 28px; line-height: 1; margin-top: 8px; letter-spacing: -0.02em; }
+  .kpi .d { font-size: 11px; color: var(--fg-3); margin-top: 6px; font-family: "Geist Mono", monospace; }
+  .kpi .d.up { color: var(--accent); }
+
+  .dash-cal {
+    border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2);
+    padding: 14px; min-height: 240px; position: relative;
+    display: grid; grid-template-columns: 56px 1fr; gap: 12px;
+  }
+  .cal-times {
+    display: flex; flex-direction: column; gap: 28px;
+    font-family: "Geist Mono", monospace; font-size: 10.5px; color: var(--fg-3);
+    padding-top: 16px;
+  }
+  .cal-grid { position: relative; border-left: 1px solid var(--line-soft); }
+  .cal-grid::before {
+    content:""; position:absolute; left:0; right:0; top: 16px; bottom: 16px;
+    background-image: linear-gradient(to bottom, var(--line-soft) 1px, transparent 1px);
+    background-size: 100% 40px; opacity: .6;
+  }
+  .cal-event {
+    position: absolute; left: 8px; right: 8px;
+    padding: 8px 10px; border-radius: 8px;
+    background: color-mix(in oklab, var(--accent) 18%, var(--bg));
+    border: 1px solid color-mix(in oklab, var(--accent) 35%, transparent);
+    font-size: 11.5px; color: var(--fg);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .cal-event .who { color: var(--fg-2); font-size: 10.5px; font-family: "Geist Mono", monospace; }
+  .cal-event.alt {
+    background: var(--bg-3);
+    border-color: var(--line);
+    color: var(--fg-2);
+  }
+
+  .dash-bottom { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+  .panel {
+    border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2);
+    padding: 14px; min-height: 200px;
+  }
+  .panel .ttl {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--fg-2);
+  }
+  .panel .ttl .more { font-family: "Geist Mono", monospace; font-size: 10.5px; color: var(--fg-3); }
+  .bars {
+    margin-top: 16px;
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end;
+    height: 140px;
+  }
+  .bars .col {
+    background: var(--bg-3); border-radius: 4px 4px 0 0;
+    position: relative;
+  }
+  .bars .col.hi { background: var(--accent); }
+  .bars-x {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+    margin-top: 6px;
+    font-family: "Geist Mono", monospace; font-size: 10px; color: var(--fg-3);
+    text-align: center;
+  }
+
+  .roster { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .tech {
+    display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center;
+    padding: 8px 10px; border-radius: 8px; background: var(--bg);
+    border: 1px solid var(--line-soft);
+  }
+  .tech .av {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), color-mix(in oklab, var(--accent) 40%, var(--bg-3)));
+    color: var(--accent-ink);
+    display: grid; place-items: center; font-size: 11px; font-weight: 600;
+    font-family: "Geist Mono", monospace;
+  }
+  .tech .n { font-size: 12.5px; }
+  .tech .s { font-family: "Geist Mono", monospace; font-size: 10.5px; color: var(--fg-3); }
+  .tech .st { font-family: "Geist Mono", monospace; font-size: 10.5px; color: var(--accent); }
+  .tech .st.busy { color: var(--fg-3); }
+
+  /* Right column: technician tablet */
+  .tablet {
+    width: 320px; border-radius: 26px;
+    background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+    border: 1px solid var(--line);
+    padding: 12px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,.6);
+    justify-self: end;
+  }
+  .tablet-screen {
+    border-radius: 18px; background: var(--bg); border: 1px solid var(--line-soft);
+    overflow: hidden;
+  }
+  .tablet-top {
+    padding: 14px 16px; border-bottom: 1px solid var(--line-soft);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .tablet-top .role { font-family: "Geist Mono", monospace; font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.08em; }
+  .tablet-top .nm { font-size: 12.5px; margin-top: 2px; }
+  .tablet-top .av {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--bg-3); display: grid; place-items: center;
+    font-family: "Geist Mono", monospace; font-size: 10px; color: var(--fg-2);
+  }
+  .tablet-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .tablet-job {
+    display: flex; flex-direction: column; gap: 4px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--line-soft);
+  }
+  .tablet-job .car { font-family: "Instrument Serif", serif; font-size: 22px; letter-spacing: -0.02em; }
+  .tablet-job .car .it { font-style: italic; color: var(--accent); }
+  .tablet-job .meta { font-family: "Geist Mono", monospace; font-size: 10.5px; color: var(--fg-3); }
+  .check { display: flex; flex-direction: column; gap: 8px; }
+  .check .row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 0;
+    font-size: 12.5px;
+  }
+  .check .row .box {
+    width: 16px; height: 16px; border-radius: 5px;
+    border: 1.5px solid var(--line); flex-shrink: 0;
+    display: grid; place-items: center;
+    color: var(--accent-ink); font-size: 11px;
+  }
+  .check .row.done .box { background: var(--accent); border-color: var(--accent); }
+  .check .row.done .box::before { content: "✓"; font-weight: 700; }
+  .check .row.done { color: var(--fg-2); text-decoration: line-through; text-decoration-color: var(--fg-3); }
+  .photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+  .photo {
+    aspect-ratio: 4/3; border-radius: 8px;
+    background: repeating-linear-gradient(45deg, var(--bg-3) 0 8px, var(--bg-2) 8px 16px);
+    border: 1px solid var(--line-soft);
+    position: relative;
+  }
+  .photo .lbl {
+    position: absolute; bottom: 6px; left: 6px;
+    background: rgba(0,0,0,.45); color: #fff; font-family: "Geist Mono", monospace;
+    font-size: 9px; padding: 2px 6px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .photo.add { background: var(--bg-2); display: grid; place-items: center; color: var(--fg-3); font-size: 22px; }
+  .tablet-cta {
+    background: var(--accent); color: var(--accent-ink);
+    padding: 12px; border-radius: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; font-weight: 500;
+  }
+
+  /* showcase captions */
+  .showcase-caps {
+    display: grid; grid-template-columns: 320px 1fr 320px; gap: 24px;
+    margin-top: 18px;
+  }
+  .cap {
+    font-family: "Geist Mono", monospace; font-size: 11px;
+    color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.08em;
+    display: flex; gap: 10px; align-items: baseline;
+  }
+  .cap .idx { color: var(--accent); }
+
+  /* ── MEMBERSHIP STORY ────────────────────────────────────────────── */
+  .story-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; align-items: stretch; }
+  .story-card {
+    border: 1px solid var(--line); border-radius: var(--radius-l);
+    background: var(--bg-2);
+    padding: 32px; display: flex; flex-direction: column; gap: 18px;
+    position: relative;
+  }
+  .story-card .ttl {
+    font-family: "Instrument Serif", serif;
+    font-size: 32px; letter-spacing: -0.02em; line-height: 1;
+  }
+  .story-card .ttl .it { font-style: italic; color: var(--accent); }
+  .ledger { display: flex; flex-direction: column; gap: 0; }
+  .ledger-row {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 16px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px dashed color-mix(in oklab, var(--line) 70%, transparent);
+    font-size: 13px;
+  }
+  .ledger-row:last-child { border-bottom: none; }
+  .ledger-row .pl { font-family: "Geist Mono", monospace; color: var(--fg-3); font-size: 11px; }
+  .ledger-row .v { font-family: "Geist Mono", monospace; }
+  .ledger-row .v.pos { color: var(--accent); }
+  .ledger-row .v.neg { color: var(--fg-3); }
+  .ledger-total {
+    margin-top: 12px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-top: 14px; border-top: 1px solid var(--line);
+  }
+  .ledger-total .l { font-family: "Geist Mono", monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); }
+  .ledger-total .n { font-family: "Instrument Serif", serif; font-size: 44px; letter-spacing: -0.02em; line-height: 1; }
+  .ledger-total .n .it { font-style: italic; color: var(--accent); }
+
+  .story-text {
+    display: flex; flex-direction: column; gap: 24px;
+    align-self: center;
+  }
+  .story-tag {
+    font-family: "Geist Mono", monospace; font-size: 11.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-3);
+  }
+  .story-h {
+    font-family: "Instrument Serif", serif;
+    font-size: clamp(36px, 4.5vw, 64px);
+    line-height: 0.98; letter-spacing: -0.025em;
+  }
+  .story-h .it { font-style: italic; color: var(--accent); }
+  .story-p { font-size: 16px; line-height: 1.55; color: var(--fg-2); text-wrap: pretty; }
+
+  /* ── BIG METRICS ─────────────────────────────────────────────────── */
+  .metrics {
+    background: var(--bg);
+    padding-top: 0;
+  }
+  .metrics-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .metric {
+    padding: 56px 32px;
+    border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .metric:last-child { border-right: none; }
+  .metric .top {
+    font-family: "Geist Mono", monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3);
+    display: flex; justify-content: space-between;
+  }
+  .metric .top .ix { color: var(--accent); }
+  .metric .big {
+    font-family: "Instrument Serif", serif;
+    font-size: clamp(72px, 10vw, 140px);
+    line-height: 0.9; letter-spacing: -0.03em;
+  }
+  .metric .big .u { font-size: 0.4em; color: var(--fg-3); padding-left: 6px; }
+  .metric .big .it { font-style: italic; color: var(--accent); }
+  .metric .desc { font-size: 14px; color: var(--fg-2); line-height: 1.5; max-width: 32ch; }
+
+  /* ── PRICING ─────────────────────────────────────────────────────── */
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .price-card {
+    border: 1px solid var(--line); border-radius: var(--radius-l);
+    background: var(--bg-2);
+    padding: 32px;
+    display: flex; flex-direction: column; gap: 22px;
+    position: relative; overflow: hidden;
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  .price-card:hover { transform: translateY(-4px); border-color: color-mix(in oklab, var(--fg) 30%, transparent); }
+  .price-card.featured {
+    background: var(--bg-3);
+    border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+  }
+  .price-card.featured::before {
+    content: "MOST POPULAR";
+    position: absolute; top: 16px; right: 16px;
+    font-family: "Geist Mono", monospace; font-size: 9.5px;
+    background: var(--accent); color: var(--accent-ink);
+    padding: 4px 8px; border-radius: 4px;
+    letter-spacing: 0.08em;
+  }
+  .price-name {
+    font-family: "Geist Mono", monospace; font-size: 11.5px;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--fg-3);
+  }
+  .price-num {
+    font-family: "Instrument Serif", serif;
+    font-size: 72px; line-height: 0.9; letter-spacing: -0.03em;
+    display: flex; align-items: baseline; gap: 4px;
+  }
+  .price-num .c { font-size: 30px; color: var(--fg-3); }
+  .price-num .pm { font-family: "Geist", sans-serif; font-size: 14px; color: var(--fg-3); padding-left: 8px; font-weight: 400; }
+  .price-num .it { font-style: italic; color: var(--accent); }
+  .price-desc { font-size: 14px; color: var(--fg-2); line-height: 1.5; }
+  .price-feat { display: flex; flex-direction: column; gap: 10px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .price-feat li {
+    display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px;
+    color: var(--fg-2);
+  }
+  .price-feat li::before {
+    content: "+"; color: var(--accent); font-family: "Geist Mono", monospace;
+    font-size: 13px; padding-top: 2px;
+  }
+  .price-btn {
+    margin-top: auto; padding: 14px; border-radius: 12px;
+    background: var(--fg); color: var(--bg);
+    text-align: center; font-size: 13.5px; font-weight: 500;
+    transition: transform .15s ease;
+  }
+  .price-card.featured .price-btn { background: var(--accent); color: var(--accent-ink); }
+  .price-btn:hover { transform: translateY(-1px); }
+
+  /* ── FOOTER CTA ──────────────────────────────────────────────────── */
+  .cta {
+    padding: 120px 0;
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    position: relative; overflow: hidden;
+  }
+  .cta::before {
+    content: ""; position: absolute; inset: 0 0 -40% 0;
+    background: radial-gradient(40% 60% at 50% 100%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%);
+    pointer-events: none;
+  }
+  .cta-inner {
+    text-align: center;
+    display: flex; flex-direction: column; gap: 28px; align-items: center;
+    position: relative;
+  }
+  .cta-h {
+    font-family: "Instrument Serif", serif;
+    font-size: clamp(56px, 9vw, 144px);
+    line-height: 0.92; letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  .cta-h .it { font-style: italic; color: var(--accent); }
+  .cta-p { font-size: 17px; color: var(--fg-2); max-width: 50ch; }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 48px 0 36px;
+    color: var(--fg-3); font-size: 13px;
+  }
+  .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 48px; }
+  .foot-grid h4 {
+    font-family: "Geist Mono", monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3);
+    margin: 0 0 14px;
+  }
+  .foot-grid ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .foot-grid a { color: var(--fg-2); }
+  .foot-grid a:hover { color: var(--fg); }
+  .foot-brand .h {
+    font-family: "Instrument Serif", serif; font-size: 38px; line-height: 1;
+    letter-spacing: -0.02em; color: var(--fg);
+  }
+  .foot-brand .h .it { font-style: italic; color: var(--accent); }
+  .foot-brand .p { margin-top: 12px; max-width: 32ch; font-size: 13px; }
+  .foot-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 28px; border-top: 1px solid var(--line-soft);
+    font-family: "Geist Mono", monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  /* Responsive coarsening */
+  @media (max-width: 1100px) {
+    .showcase-grid, .showcase-caps { grid-template-columns: 1fr; }
+    .phone, .tablet { justify-self: center; }
+    .story-grid { grid-template-columns: 1fr; }
+    .sec-head { grid-template-columns: 1fr; gap: 20px; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .metrics-row { grid-template-columns: 1fr; }
+    .metric { border-right: none; border-bottom: 1px solid var(--line); }
+    .hero-meta { grid-template-columns: 1fr 1fr; }
+    .hero-meta > div:nth-child(2) { border-right: none; }
+    .foot-grid { grid-template-columns: 1fr 1fr; }
+    .hero-sub-row { grid-template-columns: 1fr; gap: 24px; }
+    .feat-row { grid-template-columns: 40px 1fr; }
+    .feat-row .feat-desc, .feat-row .feat-icon { grid-column: 2 / -1; }
+    .dash-body { grid-template-columns: 1fr; }
+    .dash-side { display: none; }
+    .dash-kpis { grid-template-columns: 1fr 1fr; }
+    .dash-bottom { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- ── NAV ─────────────────────────────────────────────────────────── -->
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#">
+      <span class="brand-mark"></span>
+      <span>Vehicle Care OS</span>
+    </a>
+    <div class="nav-links">
+      <a href="#platform">Platform</a>
+      <a href="#operations">Operations</a>
+      <a href="#membership">Memberships</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#customers">Customers</a>
+    </div>
+    <a class="nav-cta" href="#cta">
+      <span class="dot"></span>
+      Book a demo
+    </a>
+  </div>
+</nav>
+
+<!-- ── HERO ────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">
+      <span class="pulse"></span>
+      <span>VCO / 2026 · The Operating System for Vehicle Care</span>
+    </div>
+
+    <h1 class="h1">
+      Run vehicle<br/>
+      care with <span class="it">operational</span><br/>
+      precision<span style="color:var(--accent)">.</span>
+    </h1>
+
+    <div class="hero-sub-row">
+      <p class="hero-sub">
+        VCO unifies bookings, memberships, technicians, payments, and customer
+        experience into one platform — built for car wash chains, premium
+        detailers, and mobile operators who think in <em style="font-family:'Instrument Serif',serif; color:var(--fg)">recurring revenue</em>.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#cta">
+          Book a demo
+          <span class="arr">↗</span>
+        </a>
+        <a class="btn" href="#platform">
+          See the platform
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-meta">
+      <div>
+        <div class="lbl">Locations live</div>
+        <div class="val">412<span class="u">+</span></div>
+      </div>
+      <div>
+        <div class="lbl">Vehicles on record</div>
+        <div class="val">1.84<span class="u">M</span></div>
+      </div>
+      <div>
+        <div class="lbl">Member retention</div>
+        <div class="val">94<span class="u">%</span></div>
+      </div>
+      <div>
+        <div class="lbl">Avg. bay utilization</div>
+        <div class="val">+38<span class="u">%</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MARQUEE ─────────────────────────────────────────────────────── -->
+<div class="marq">
+  <div class="marq-track" id="marq">
+    <!-- duplicated in JS for seamless scroll -->
+  </div>
+</div>
+
+<!-- ── PLATFORM / NUMBERED FEATURES ────────────────────────────────── -->
+<section id="platform">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-tag"><span class="idx">[01]</span><span class="line"></span><span>Platform</span></div>
+        <h2 class="sec-title">One system,<br/><span class="it">every workflow.</span></h2>
+      </div>
+      <p class="sec-desc">
+        Most vehicle care businesses run on six tools held together by spreadsheets and group chats.
+        VCO replaces the stack — booking, payments, memberships, dispatch, vehicle records, and analytics —
+        with a single operational fabric.
+      </p>
+    </div>
+
+    <div class="feat-stack">
+      <div class="feat-row">
+        <div class="feat-num">[01]</div>
+        <div class="feat-name">Booking<br/>& <span class="it">scheduling</span></div>
+        <div class="feat-desc">
+          Real-time calendar across bays, technicians, and mobile routes.
+          Smart slotting prevents over-booking, customers self-serve through web or app.
+        </div>
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 8h15M7 2.5v3M13 2.5v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-num">[02]</div>
+        <div class="feat-name">Membership<br/><span class="it">engine</span></div>
+        <div class="feat-desc">
+          Unlimited wash plans, tiered detailing, fleet contracts. Pause, upgrade, downgrade,
+          renew. Churn is forecasted — not discovered.
+        </div>
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M6 10l3 3 5-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-num">[03]</div>
+        <div class="feat-name">Vehicle<br/><span class="it">record layer</span></div>
+        <div class="feat-desc">
+          Every car carries its history with it: services, conditions, photos, preferences.
+          Technicians walk up knowing the vehicle before they meet the owner.
+        </div>
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 12V9.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2V12" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="12" width="16" height="4" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="6" cy="14" r="1" fill="currentColor"/><circle cx="14" cy="14" r="1" fill="currentColor"/></svg>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-num">[04]</div>
+        <div class="feat-name">Technician<br/><span class="it">workflow</span></div>
+        <div class="feat-desc">
+          Per-service checklists, before/after photos, condition notes, and live progress.
+          Quality becomes auditable.
+        </div>
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="3" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M7 8h6M7 11h6M7 14h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-num">[05]</div>
+        <div class="feat-name">Operations<br/><span class="it">intelligence</span></div>
+        <div class="feat-desc">
+          Bay utilization, technician productivity, service duration variance,
+          upsell conversion — measured per location, per day, per shift.
+        </div>
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 16V4M3 16h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6 13l3-4 3 2 5-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-num">[06]</div>
+        <div class="feat-name">Customer<br/><span class="it">experience</span></div>
+        <div class="feat-desc">
+          A modern app for the people whose cars you care for. Booking, live status,
+          memberships, history, loyalty — feels like an Apple product.
+        </div>
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5.5" y="2.5" width="9" height="15" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="14.5" r="0.8" fill="currentColor"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── OPERATIONS / PRODUCT MOCKS ──────────────────────────────────── -->
+<section id="operations" class="showcase">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-tag"><span class="idx">[02]</span><span class="line"></span><span>Inside the OS</span></div>
+        <h2 class="sec-title">Three surfaces.<br/><span class="it">One operation.</span></h2>
+      </div>
+      <p class="sec-desc">
+        Customers tap. Operators orchestrate. Technicians execute. VCO renders the same vehicle,
+        appointment, and membership across all three roles — in real time, with no copy-paste.
+      </p>
+    </div>
+
+    <div class="showcase-grid">
+      <!-- Phone: Customer -->
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="phone-status">
+            <span>9:41</span>
+            <span>● ● ● ●</span>
+          </div>
+          <div class="phone-body">
+            <div>
+              <div class="phone-sub">Good morning, Maya</div>
+              <div class="phone-h">Your <span class="it">Signature</span><br/>wash is in progress</div>
+            </div>
+            <div class="phone-card">
+              <div class="phone-status-bar">
+                <div class="phone-stat-l">
+                  <span class="phone-dot"></span>
+                  <span>In service · Bay 03</span>
+                </div>
+                <span class="phone-eta">ETA 14 min</span>
+              </div>
+              <div class="phone-steps">
+                <div class="phone-step done"><span class="pip"></span>Pre-rinse & foam</div>
+                <div class="phone-step done"><span class="pip"></span>Hand wash</div>
+                <div class="phone-step now"><span class="pip"></span>Wheel & tire detail</div>
+                <div class="phone-step pending"><span class="pip"></span>Hand dry & finish</div>
+                <div class="phone-step pending"><span class="pip"></span>Interior wipe-down</div>
+              </div>
+            </div>
+            <div class="phone-veh">
+              <div class="img"></div>
+              <div>
+                <div class="m">2024 Range Rover Sport</div>
+                <div class="p">PLATE · 8KRQ-422 · SANTORINI BLACK</div>
+              </div>
+            </div>
+            <div class="phone-cta">
+              <span>Add Ceramic Coat · $89</span>
+              <span>↗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Operator dashboard -->
+      <div class="dash">
+        <div class="dash-chrome">
+          <div class="lights"><span></span><span></span><span></span></div>
+          <div class="url">vco.app / <b>chelsea-flagship</b> / dispatch</div>
+        </div>
+        <div class="dash-body">
+          <aside class="dash-side">
+            <div class="grp">Today</div>
+            <a class="on" href="#">Dispatch <span class="ct">28</span></a>
+            <a href="#">Calendar <span class="ct">142</span></a>
+            <a href="#">Members <span class="ct">3.1k</span></a>
+            <div class="grp">Operate</div>
+            <a href="#">Vehicles</a>
+            <a href="#">Technicians</a>
+            <a href="#">Inventory</a>
+            <div class="grp">Grow</div>
+            <a href="#">Memberships</a>
+            <a href="#">Loyalty</a>
+            <a href="#">Reports</a>
+          </aside>
+          <div class="dash-main">
+            <div class="dash-top">
+              <div class="dash-h">Dispatch — <span class="it">Tuesday</span></div>
+              <div class="dash-search">
+                <span>Search vehicle, member, plate…</span>
+                <kbd>⌘K</kbd>
+              </div>
+            </div>
+
+            <div class="dash-kpis">
+              <div class="kpi">
+                <div class="lbl">Revenue today</div>
+                <div class="v">$8,420</div>
+                <div class="d up">↑ 12% vs last Tue</div>
+              </div>
+              <div class="kpi">
+                <div class="lbl">Bay utilization</div>
+                <div class="v">87%</div>
+                <div class="d up">↑ 4 pts</div>
+              </div>
+              <div class="kpi">
+                <div class="lbl">New members</div>
+                <div class="v">17</div>
+                <div class="d">↑ 3 vs avg</div>
+              </div>
+              <div class="kpi">
+                <div class="lbl">Avg ticket</div>
+                <div class="v">$61</div>
+                <div class="d">— stable</div>
+              </div>
+            </div>
+
+            <div class="dash-cal">
+              <div class="cal-times">
+                <span>09:00</span>
+                <span>10:00</span>
+                <span>11:00</span>
+                <span>12:00</span>
+                <span>13:00</span>
+              </div>
+              <div class="cal-grid">
+                <div class="cal-event" style="top: 6px; height: 36px;">
+                  <span>Signature wash · Bay 03</span><span class="who">M. Okafor · LR Sport</span>
+                </div>
+                <div class="cal-event alt" style="top: 50px; height: 42px;">
+                  <span>Full detail · Bay 01</span><span class="who">D. Vega · BMW M3</span>
+                </div>
+                <div class="cal-event" style="top: 100px; height: 56px;">
+                  <span>Ceramic coat · Bay 04</span><span class="who">A. Choi · Tesla Y</span>
+                </div>
+                <div class="cal-event alt" style="top: 162px; height: 32px;">
+                  <span>Mobile — 22 Park Ln</span><span class="who">T. Reyes · Porsche 911</span>
+                </div>
+                <div class="cal-event" style="top: 200px; height: 26px;">
+                  <span>Express · Bay 02</span><span class="who">J. Singh · Audi Q5</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-bottom">
+              <div class="panel">
+                <div class="ttl"><span>Revenue · last 7 days</span><span class="more">view ↗</span></div>
+                <div class="bars">
+                  <div class="col" style="height: 42%;"></div>
+                  <div class="col" style="height: 58%;"></div>
+                  <div class="col" style="height: 51%;"></div>
+                  <div class="col" style="height: 72%;"></div>
+                  <div class="col hi" style="height: 88%;"></div>
+                  <div class="col" style="height: 64%;"></div>
+                  <div class="col" style="height: 76%;"></div>
+                </div>
+                <div class="bars-x">
+                  <span>W</span><span>T</span><span>F</span><span>S</span><span>S</span><span>M</span><span>T</span>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="ttl"><span>Technicians on shift</span><span class="more">5 active</span></div>
+                <div class="roster">
+                  <div class="tech"><div class="av">MO</div><div><div class="n">Marcus O.</div><div class="s">Bay 03 · 4 jobs</div></div><div class="st">ACTIVE</div></div>
+                  <div class="tech"><div class="av">DV</div><div><div class="n">Dani V.</div><div class="s">Bay 01 · 3 jobs</div></div><div class="st">ACTIVE</div></div>
+                  <div class="tech"><div class="av">AC</div><div><div class="n">Ana C.</div><div class="s">Bay 04 · 2 jobs</div></div><div class="st">ACTIVE</div></div>
+                  <div class="tech"><div class="av">TR</div><div><div class="n">Tomás R.</div><div class="s">Mobile · 5 stops</div></div><div class="st busy">ON ROUTE</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tablet: Technician -->
+      <div class="tablet">
+        <div class="tablet-screen">
+          <div class="tablet-top">
+            <div>
+              <div class="role">Job 02 · 11:42</div>
+              <div class="nm">Bay 03 — Marcus O.</div>
+            </div>
+            <div class="av">MO</div>
+          </div>
+          <div class="tablet-body">
+            <div class="tablet-job">
+              <div class="car">Signature <span class="it">Wash</span></div>
+              <div class="meta">2024 RANGE ROVER SPORT · 8KRQ-422</div>
+            </div>
+            <div class="check">
+              <div class="row done"><span class="box"></span>Pre-rinse & foam soak</div>
+              <div class="row done"><span class="box"></span>Hand wash · pH neutral</div>
+              <div class="row done"><span class="box"></span>Wheel & tire dressing</div>
+              <div class="row"><span class="box"></span>Hand dry · soft microfiber</div>
+              <div class="row"><span class="box"></span>Interior wipe-down</div>
+              <div class="row"><span class="box"></span>Glass · streak check</div>
+            </div>
+            <div>
+              <div class="role" style="margin-bottom:6px">Photos · 2 of 4</div>
+              <div class="photos">
+                <div class="photo"><span class="lbl">Before · Front</span></div>
+                <div class="photo"><span class="lbl">Before · Wheels</span></div>
+                <div class="photo add">＋</div>
+                <div class="photo add">＋</div>
+              </div>
+            </div>
+            <div class="tablet-cta">
+              <span>Mark complete</span>
+              <span>↗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="showcase-caps">
+      <div class="cap"><span class="idx">[A]</span><span>Customer app — live service tracking</span></div>
+      <div class="cap"><span class="idx">[B]</span><span>Operator dashboard — dispatch &amp; revenue intelligence</span></div>
+      <div class="cap"><span class="idx">[C]</span><span>Technician tablet — checklist, photos, notes</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MEMBERSHIP STORY ────────────────────────────────────────────── -->
+<section id="membership">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-tag"><span class="idx">[03]</span><span class="line"></span><span>Recurring revenue</span></div>
+        <h2 class="sec-title">Memberships<br/>are <span class="it">the moat.</span></h2>
+      </div>
+      <p class="sec-desc">
+        A single car wash is a transaction. A membership is a relationship that
+        compounds. VCO is built membership-first — every booking, every photo,
+        every preference reinforces retention.
+      </p>
+    </div>
+
+    <div class="story-grid">
+      <div class="story-card">
+        <div class="ttl">A single member, <span class="it">across a year.</span></div>
+        <div class="ledger">
+          <div class="ledger-row">
+            <span>Unlimited Plus · $39/mo</span>
+            <span class="pl">12 cycles</span>
+            <span class="v pos">+ $468.00</span>
+          </div>
+          <div class="ledger-row">
+            <span>Ceramic coat upgrades</span>
+            <span class="pl">2 add-ons</span>
+            <span class="v pos">+ $178.00</span>
+          </div>
+          <div class="ledger-row">
+            <span>Interior deep clean</span>
+            <span class="pl">3 visits</span>
+            <span class="v pos">+ $267.00</span>
+          </div>
+          <div class="ledger-row">
+            <span>Loyalty rewards redeemed</span>
+            <span class="pl">apr / sep</span>
+            <span class="v neg">– $30.00</span>
+          </div>
+          <div class="ledger-row">
+            <span>Referral credit</span>
+            <span class="pl">1 friend</span>
+            <span class="v pos">+ $25.00</span>
+          </div>
+        </div>
+        <div class="ledger-total">
+          <span class="l">Member LTV · yr 01</span>
+          <span class="n"><span class="it">$908</span></span>
+        </div>
+      </div>
+
+      <div class="story-text">
+        <div class="story-tag">VS. THE OLD WAY</div>
+        <h3 class="story-h">A walk-in is <span class="it">$24.</span><br/>A member is <span class="it">$908.</span><br/>And they came back.</h3>
+        <p class="story-p">
+          VCO surfaces every lever — pause requests, downgrade signals, dormancy patterns —
+          before they become cancellations. Operators don't react to churn. They route around it.
+        </p>
+        <p class="story-p">
+          Pause, upgrade, downgrade, renew. Add a vehicle to the plan. Share with a partner.
+          Switch locations. All native, all self-serve, all measured.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BIG METRICS ─────────────────────────────────────────────────── -->
+<section class="metrics" id="customers">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-tag"><span class="idx">[04]</span><span class="line"></span><span>Field results</span></div>
+        <h2 class="sec-title">What operators see<br/>in the <span class="it">first 90 days.</span></h2>
+      </div>
+      <p class="sec-desc">
+        Numbers from VCO operators across multi-location chains, premium detailing
+        studios, and mobile fleets — measured against their prior stack.
+      </p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="metrics-row">
+      <div class="metric">
+        <div class="top"><span class="ix">[01]</span><span>Membership growth</span></div>
+        <div class="big">+62<span class="u">%</span></div>
+        <div class="desc">Average increase in active recurring members within the first 90 days of switching to VCO.</div>
+      </div>
+      <div class="metric">
+        <div class="top"><span class="ix">[02]</span><span>Time per booking</span></div>
+        <div class="big"><span class="it">37s</span></div>
+        <div class="desc">Median customer booking time on mobile — from open to confirmed appointment.</div>
+      </div>
+      <div class="metric">
+        <div class="top"><span class="ix">[03]</span><span>Operator tools replaced</span></div>
+        <div class="big">7<span class="u">×</span></div>
+        <div class="desc">Average number of point tools (booking, payments, CRM, SMS, sheets…) consolidated into VCO.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ─────────────────────────────────────────────────────── -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-tag"><span class="idx">[05]</span><span class="line"></span><span>Pricing</span></div>
+        <h2 class="sec-title">Priced like<br/><span class="it">a partner.</span></h2>
+      </div>
+      <p class="sec-desc">
+        Pay per location, scale on volume. All plans include the customer app,
+        operator dashboard, and technician tools — pricing reflects scope, not surface area.
+      </p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-num"><span class="c">$</span>149<span class="pm">/ location / mo</span></div>
+        <p class="price-desc">For single-location operators ready to professionalize bookings, memberships, and service tracking.</p>
+        <ul class="price-feat">
+          <li>Customer app + booking</li>
+          <li>Unlimited memberships</li>
+          <li>Technician workflow</li>
+          <li>Daily revenue reports</li>
+          <li>Email support</li>
+        </ul>
+        <div class="price-btn">Start with Starter</div>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-name">Growth</div>
+        <div class="price-num"><span class="c">$</span><span class="it">349</span><span class="pm">/ location / mo</span></div>
+        <p class="price-desc">For multi-location chains running memberships, mobile service, and operational reporting in earnest.</p>
+        <ul class="price-feat">
+          <li>Everything in Starter</li>
+          <li>Multi-location dispatch</li>
+          <li>Mobile-service routing</li>
+          <li>Operations intelligence</li>
+          <li>CRM, loyalty &amp; referrals</li>
+          <li>Priority support</li>
+        </ul>
+        <div class="price-btn">Talk to sales</div>
+      </div>
+
+      <div class="price-card">
+        <div class="price-name">Enterprise</div>
+        <div class="price-num"><span class="it">Custom</span></div>
+        <p class="price-desc">For chains, fleets, and dealerships. SLA-backed, with white-label, API access, and migration support.</p>
+        <ul class="price-feat">
+          <li>Everything in Growth</li>
+          <li>Fleet &amp; commercial accounts</li>
+          <li>White-label customer app</li>
+          <li>SSO, audit, custom roles</li>
+          <li>Dedicated success team</li>
+          <li>99.99% uptime SLA</li>
+        </ul>
+        <div class="price-btn">Contact us</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER CTA ──────────────────────────────────────────────────── -->
+<section class="cta" id="cta">
+  <div class="wrap cta-inner">
+    <div class="eyebrow"><span class="pulse"></span><span>Ready when you are</span></div>
+    <h2 class="cta-h">Run your business<br/>like an <span class="it">operating system.</span></h2>
+    <p class="cta-p">30-minute walkthrough with a real operator. We'll map your current stack, model your member economics, and show you VCO end-to-end.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#">Book a demo <span class="arr">↗</span></a>
+      <a class="btn" href="#">Talk to sales</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="h"><span class="it">Vehicle</span> Care OS</div>
+        <p class="p">The operating system for car wash, detailing, and mobile vehicle care businesses.</p>
+      </div>
+      <div>
+        <h4>Platform</h4>
+        <ul><li><a href="#">Booking</a></li><li><a href="#">Memberships</a></li><li><a href="#">Operations</a></li><li><a href="#">Customer app</a></li></ul>
+      </div>
+      <div>
+        <h4>Solutions</h4>
+        <ul><li><a href="#">Car wash chains</a></li><li><a href="#">Detailing studios</a></li><li><a href="#">Mobile operators</a></li><li><a href="#">Fleets &amp; dealerships</a></li></ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Customers</a></li><li><a href="#">Press</a></li></ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul><li><a href="#">Docs</a></li><li><a href="#">Changelog</a></li><li><a href="#">Status</a></li><li><a href="#">Contact</a></li></ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Vehicle Care OS</span>
+      <span>v.2026.05 — built for operators</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ── TWEAKS / SCRIPTS ────────────────────────────────────────────── -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<script>
+  // Marquee fill (duplicated for seamless infinite scroll)
+  (function(){
+    const items = [
+      "Run vehicle care like an operating system",
+      "★",
+      "Bookings · Memberships · Dispatch · Vehicles",
+      "★",
+      "412 locations · 1.84M vehicles on record",
+      "★",
+      "Membership-first by design",
+      "★",
+      "Built for operators, not hobbyists",
+      "★"
+    ];
+    const track = document.getElementById("marq");
+    if (!track) return;
+    const set = items.map(t =>
+      t === "★"
+        ? '<span class="marq-item"><span class="star">◆</span></span>'
+        : `<span class="marq-item">${t}</span>`
+    ).join("");
+    track.innerHTML = set + set;
+  })();
+
+  // Smooth scroll for nav anchors
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href');
+      if (id.length > 1) {
+        const t = document.querySelector(id);
+        if (t) { e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
+      }
+    });
+  });
+</script>
+
+<!-- Tweaks panel (React) -->
+<div id="tweak-root"></div>
+<script type="text/babel" data-presets="env,react">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": [
+    "oklch(0.72 0.22 25)",
+    "oklch(0.98 0.005 60)"
+  ],
+  "theme": "light",
+  "type": "mixed"
+}/*EDITMODE-END*/;
+
+const ACCENT_OPTIONS = [
+  ["oklch(0.88 0.20 125)", "oklch(0.20 0.04 125)"],  // electric lime
+  ["oklch(0.80 0.17 65)",  "oklch(0.20 0.04 60)"],   // amber
+  ["oklch(0.82 0.14 235)", "oklch(0.20 0.04 235)"],  // ice blue
+  ["oklch(0.72 0.22 25)",  "oklch(0.98 0.005 60)"]   // signal red
+];
+
+const TYPE_PRESETS = {
+  instrument: { display: '"Instrument Serif", serif', body: '"Geist", ui-sans-serif, system-ui, sans-serif' },
+  geist: { display: '"Geist", ui-sans-serif, sans-serif', body: '"Geist", ui-sans-serif, system-ui, sans-serif' },
+  mixed: { display: '"Instrument Serif", serif', body: '"Inter Tight", "Geist", sans-serif' }
+};
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  React.useEffect(() => {
+    const r = document.documentElement;
+    r.style.setProperty('--accent', t.accent[0]);
+    r.style.setProperty('--accent-ink', t.accent[1]);
+    document.body.setAttribute('data-theme', t.theme);
+    const p = TYPE_PRESETS[t.type] || TYPE_PRESETS.instrument;
+    document.querySelectorAll('.h1, .sec-title, .cta-h, .feat-name, .phone-h, .dash-h, .story-h, .story-card .ttl, .tablet-job .car, .ledger-total .n, .metric .big, .price-num, .foot-brand .h, .hero-meta .val, .kpi .v')
+      .forEach(el => el.style.fontFamily = p.display);
+    document.body.style.fontFamily = p.body;
+  }, [t.accent, t.theme, t.type]);
+
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Accent" />
+      <TweakColor
+        label="Palette"
+        value={t.accent}
+        options={ACCENT_OPTIONS}
+        onChange={(v) => setTweak('accent', v)}
+      />
+      <TweakSection label="Theme" />
+      <TweakRadio
+        label="Mode"
+        value={t.theme}
+        options={['dark', 'light']}
+        onChange={(v) => setTweak('theme', v)}
+      />
+      <TweakSection label="Typography" />
+      <TweakRadio
+        label="Display"
+        value={t.type}
+        options={['instrument', 'geist', 'mixed']}
+        onChange={(v) => setTweak('type', v)}
+      />
+    </TweaksPanel>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('tweak-root'));
+root.render(<App />);
+</script>
+</body>
+</html>
