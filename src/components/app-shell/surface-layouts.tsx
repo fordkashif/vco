@@ -18,7 +18,6 @@ import {
 } from "@hugeicons/core-free-icons"
 
 import { BrandMark } from "@/components/shared/brand-mark"
-import { cn } from "@/lib/utils"
 
 // ─── Shared floating pill tab bar ─────────────────────────────────────────
 function PillNav({

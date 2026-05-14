@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom"
 
-import { VcoKpiCard, VcoPanel, VcoRow } from "@/components/operator/operator-surfaces"
+import { VcoPanel, VcoRow } from "@/components/operator/operator-surfaces"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { bookingTimeline, bookings, getBookingById, getBookingDisplay } from "@/data/mock"
 

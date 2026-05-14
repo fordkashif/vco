@@ -2,7 +2,6 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowRight01Icon,
-  Calendar01Icon,
   Location01Icon,
   PlusSignIcon,
 } from "@hugeicons/core-free-icons"
@@ -10,7 +9,6 @@ import {
 import {
   VcoInfoTile,
   VcoListRow,
-  VcoServiceCard,
 } from "@/components/customer/customer-surfaces"
 import { StatusBadge } from "@/components/shared/status-badge"
 import {

@@ -4,7 +4,6 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowLeft01Icon,
   CheckmarkCircle01Icon,
-  Wrench01Icon,
 } from "@hugeicons/core-free-icons"
 
 import {

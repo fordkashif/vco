@@ -223,9 +223,15 @@ export function TechnicianTodayPage() {
 
 // ── Completed Jobs ─────────────────────────────────────────────────────
 export function TechnicianCompletedJobsPage() {
-  const completedJobs = bookings
+  const { allBookings } = useAppStore()
+  const completedJobs = getTechnicianBookings(allBookings)
     .filter((b) => b.status === "Completed")
-    .map(getBookingDisplay)
+    .map((b) => ({
+      ...b,
+      vehicleName: getVehicleById(b.vehicleId)?.name ?? b.vehicleId,
+      plate: getVehicleById(b.vehicleId)?.plate ?? "",
+      serviceName: getServiceById(b.serviceId)?.name ?? b.serviceId,
+    }))
 
   return (
     <div className="space-y-4">

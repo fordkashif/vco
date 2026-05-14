@@ -52,7 +52,9 @@ function loadState(): StoreState {
       const parsed = JSON.parse(raw) as StoreState
       if (Array.isArray(parsed.allBookings)) return parsed
     }
-  } catch {}
+  } catch {
+    // Ignore malformed local data and fall back to seed state.
+  }
   return seed()
 }
 

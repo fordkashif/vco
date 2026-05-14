@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -785,19 +785,13 @@ export function CustomerBookingPage() {
   const locationTimeSlots = selectedLocation ? LOCATION_TIMES[selectedLocation as (typeof locations)[number]] ?? [] : []
   const availableServices = serviceCatalog.filter((service) => locationServices.includes(service.id))
 
-  useEffect(() => {
-    if (!selectedLocation) {
-      setSelectedServiceId("")
-      setSelectedTime("")
-      return
-    }
-    if (!locationServices.includes(selectedServiceId)) {
-      setSelectedServiceId(locationServices[0] ?? "")
-    }
-    if (!locationTimeSlots.includes(selectedTime)) {
-      setSelectedTime(locationTimeSlots[0] ?? "")
-    }
-  }, [locationServices, locationTimeSlots, selectedLocation, selectedServiceId, selectedTime])
+  function handleSelectLocation(location: string) {
+    const services = LOCATION_SERVICES[location as (typeof locations)[number]] ?? []
+    const slots = LOCATION_TIMES[location as (typeof locations)[number]] ?? []
+    setSelectedLocation(location)
+    setSelectedServiceId((current) => (services.includes(current) ? current : (services[0] ?? "")))
+    setSelectedTime((current) => (slots.includes(current) ? current : (slots[0] ?? "")))
+  }
 
   const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? vehicles[0]
   const selectedService = availableServices.find((s) => s.id === selectedServiceId) ?? availableServices[0]
@@ -937,7 +931,7 @@ export function CustomerBookingPage() {
 
       {/* Step content */}
       <div>
-        {step === 0 && <StepLocation selected={selectedLocation} onSelect={setSelectedLocation} />}
+        {step === 0 && <StepLocation selected={selectedLocation} onSelect={handleSelectLocation} />}
         {step === 1 && (
           <StepPackage
             packages={availableServices}
