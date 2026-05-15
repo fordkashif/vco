@@ -627,7 +627,7 @@ function DefaultState({
   const hasActive = bookings.some((b) => b.status === "In progress" || b.status === "Ready")
 
   return (
-    <div className="space-y-5 pt-2">
+    <div className="space-y-7 pt-2">
       {/* Greeting */}
       <div>
         <MonoLabel>Good morning, {firstName}</MonoLabel>
@@ -648,7 +648,7 @@ function DefaultState({
       <Link to="/customer/book">
         <div
           className="relative overflow-hidden transition hover:opacity-95 active:scale-[0.99]"
-          style={{ borderRadius: 20, background: "var(--primary)", minHeight: 100 }}
+          style={{ borderRadius: 24, background: "var(--primary)", minHeight: 116 }}
         >
           <div
             className="pointer-events-none absolute inset-0"
@@ -656,25 +656,25 @@ function DefaultState({
               backgroundImage: "radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.12) 0%, transparent 60%)",
             }}
           />
-          <div className="relative flex items-center justify-between px-6 py-6">
+          <div className="relative flex items-center justify-between px-7 py-7">
             <div>
               {lastServiceName && (
                 <p
-                  className="text-[10px] uppercase tracking-[0.1em] mb-1"
+                  className="mb-1.5 text-[10px] uppercase tracking-[0.1em]"
                   style={{ color: "var(--primary-foreground)", opacity: 0.55, fontFamily: "'Outfit', sans-serif" }}
                 >
                   Last: {lastServiceName}
                 </p>
               )}
               <p
-                className="text-[22px] font-medium leading-tight"
+                className="text-[30px] leading-[0.95] tracking-[-0.02em]"
                 style={{ color: "var(--primary-foreground)", fontFamily: "'Instrument Serif', serif", fontWeight: 400 }}
               >
                 Book a <em>service</em>
               </p>
             </div>
             <div
-              className="flex size-11 items-center justify-center rounded-full flex-shrink-0"
+              className="flex size-12 items-center justify-center rounded-full flex-shrink-0"
               style={{ background: "rgba(0,0,0,0.2)" }}
             >
               <HugeiconsIcon icon={ArrowRight01Icon} size={20} primaryColor="var(--primary-foreground)" strokeWidth={1.8} />
@@ -683,30 +683,32 @@ function DefaultState({
         </div>
       </Link>
 
-      <div className="grid grid-cols-3 gap-2.5">
-        <div className="rounded-[14px] border border-border bg-card px-3.5 py-3">
-          <MonoLabel>Active</MonoLabel>
-          <p className="mt-1 text-[12px]" style={{ color: hasActive ? "var(--foreground)" : "var(--fg-3)" }}>
-            {hasActive ? "In service" : "None"}
-          </p>
-        </div>
-        <div className="rounded-[14px] border border-border bg-card px-3.5 py-3">
-          <MonoLabel>Upcoming</MonoLabel>
-          <p className="mt-1 text-[12px]" style={{ color: hasUpcoming ? "var(--foreground)" : "var(--fg-3)" }}>
-            {hasUpcoming ? "Scheduled" : "None"}
-          </p>
-        </div>
-        <div className="rounded-[14px] border border-border bg-card px-3.5 py-3">
-          <MonoLabel>History</MonoLabel>
-          <p className="mt-1 text-[12px]" style={{ color: completed.length > 0 ? "var(--foreground)" : "var(--fg-3)" }}>
-            {completed.length > 0 ? `${completed.length} jobs` : "No jobs"}
-          </p>
+      <div className="mt-2 rounded-[16px] border border-border bg-card px-3 py-2.5">
+        <div className="grid grid-cols-3">
+          <div className="px-2.5 py-2">
+            <MonoLabel>Active</MonoLabel>
+            <p className="mt-1 text-[13px]" style={{ color: hasActive ? "var(--foreground)" : "var(--fg-3)" }}>
+              {hasActive ? "In service" : "None"}
+            </p>
+          </div>
+          <div className="border-x border-border px-2.5 py-2">
+            <MonoLabel>Upcoming</MonoLabel>
+            <p className="mt-1 text-[13px]" style={{ color: hasUpcoming ? "var(--foreground)" : "var(--fg-3)" }}>
+              {hasUpcoming ? "Scheduled" : "None"}
+            </p>
+          </div>
+          <div className="px-2.5 py-2">
+            <MonoLabel>History</MonoLabel>
+            <p className="mt-1 text-[13px]" style={{ color: completed.length > 0 ? "var(--foreground)" : "var(--fg-3)" }}>
+              {completed.length > 0 ? `${completed.length} jobs` : "No jobs"}
+            </p>
+          </div>
         </div>
       </div>
 
 
       {/* Garage */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <MonoLabel>Your garage</MonoLabel>
           <Link
@@ -717,7 +719,8 @@ function DefaultState({
             + Add
           </Link>
         </div>
-        {vehicles.map((v) => {
+        <div className="space-y-5">
+          {vehicles.map((v) => {
           const lastForV = bookings
             .filter((b) => b.vehicleId === v.id && (b.status === "Completed" || b.status === "Paid"))
             .at(0)
@@ -728,7 +731,7 @@ function DefaultState({
               <VehicleHeroCard vehicle={v} to={`/customer/vehicles/${v.id}`} />
               {lastSvcName && (
                 <p
-                  className="mt-1.5 px-1 text-[10px]"
+                  className="mt-2 px-1 text-[10px]"
                   style={{ fontFamily: "'Outfit', sans-serif", color: "var(--fg-3)" }}
                 >
                   Last: {lastSvcName}
@@ -736,7 +739,8 @@ function DefaultState({
               )}
             </div>
           )
-        })}
+          })}
+        </div>
       </div>
     </div>
   )
