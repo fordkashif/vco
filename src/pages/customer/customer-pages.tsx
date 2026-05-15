@@ -710,13 +710,20 @@ function DefaultState({
       {/* Garage */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <MonoLabel>Your garage</MonoLabel>
-          <Link
-            to="/customer/vehicles/new"
-            className="text-[10px] uppercase tracking-[0.08em]"
-            style={{ fontFamily: "'Outfit', sans-serif", color: "var(--primary)" }}
+          <p
+            className="text-[11px] uppercase tracking-[0.1em]"
+            style={{ fontFamily: "'Outfit', sans-serif", color: "var(--fg-3)" }}
           >
-            + Add
+            Your garage
+          </p>
+          <Link to="/customer/vehicles/new">
+            <button
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-medium transition hover:opacity-90 active:scale-[0.98]"
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+            >
+              <HugeiconsIcon icon={PlusSignIcon} size={13} strokeWidth={1.8} />
+              Add
+            </button>
           </Link>
         </div>
         <div className="space-y-5">
